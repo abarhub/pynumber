@@ -1,39 +1,46 @@
 import math
+from builtins import list
 
 
 class Variable:
-    nom = ''
-    valeur = -1
+    nom: str = ''
+    valeur:int = -1
 
-    def __init__(self, nom, valeur):
+    def __init__(self, nom:str, valeur:int):
         self.nom = nom
         self.valeur = valeur
 
-    def __str__(self):
+    def __str__(self)->str:
         return self.val()
 
-    def val(self):
+    def val(self)->str:
         if self.valeur >= 0:
             return str(self.valeur)
         else:
             return self.nom
 
-    def descr(self):
+    def descr(self)->str:
         return self.nom + '=' + str(self.valeur)
+
+    def __repr__(self)->str:
+        return self.__str__()
 
 
 class Constante:
-    valeur = 0
+    valeur:int = 0
 
-    def __init__(self, valeur):
+    def __init__(self, valeur:int):
         self.valeur = valeur
 
-    def __str__(self):
+    def __str__(self)->str:
         return str(self.valeur)
+
+    def __repr__(self)->str:
+        return self.__str__()
 
 
 class ListVariable:
-    liste = []
+    liste:list[Variable] = []
 
     def __str__(self):
         i = 0
@@ -45,7 +52,7 @@ class ListVariable:
             i = i + 1
         return '[' + s + ']'
 
-    def get(self, nom):
+    def get(self, nom:str)->Variable:
         for x in self.liste:
             if x.nom == nom:
                 return x
@@ -55,9 +62,9 @@ class ListVariable:
 class Mult:
     x = None
     y = None
-    ordre = 0
+    ordre:int = 0
 
-    def __init__(self, x, y, ordre):
+    def __init__(self, x, y, ordre:int):
         self.x = x
         self.y = y
         self.ordre = ordre
@@ -65,6 +72,8 @@ class Mult:
     def __str__(self):
         return str(self.x) + '*' + str(self.y) + '(' + str(self.ordre) + ')'
 
+    def __repr__(self):
+        return self.__str__()
 
 # class Equation:
 #     list = []
@@ -83,8 +92,8 @@ class Mult:
 
 
 class MultiplicationComplete:
-    liste = []
-    valeurs = []
+    liste:list[Mult] = []
+    valeurs:list[int] = []
 
     def __str__(self):
         i = 0
@@ -97,6 +106,8 @@ class MultiplicationComplete:
             i = i + 1
         return s + '(' + str(self.valeurs) + ')'
 
+    def getByOrder(self,ordre:int)->list[Mult]:
+        return [x for x in self.liste if x.ordre<=ordre]
 
 #                   A  B  C  D
 #                         E  F
@@ -109,7 +120,7 @@ class MultiplicationComplete:
 #
 
 
-def construit(numberList):
+def construit(numberList:list[str])->ListVariable:
     i = 0
     list = ListVariable()
     while i < len(numberList):
@@ -126,7 +137,7 @@ def construit(numberList):
     return list
 
 
-def construitEquation(numberList, listeVariables):
+def construitEquation(numberList :list[str], listeVariables: list)-> MultiplicationComplete:
     nb = len(numberList)
     nb2 = int(math.ceil(nb / 2))
     # nb = 1
@@ -145,6 +156,39 @@ def construitEquation(numberList, listeVariables):
                 liste.liste.append(tmp2)
     return liste
 
+def inList(liste:list[Variable], nom:str)-> bool:
+    for x in liste:
+        if x.nom==nom:
+            return True
+    return False
+
+def getVariables(liste:list[Mult])->list[Variable]:
+    liste2:list[Variable]=[x.x for x in liste if x.x!=None and x.x.valeur>=0]
+    liste3:list[Variable] = [x.y for x in liste if x.y != None and x.y.valeur>=0]
+    liste4:list[Variable]=[]
+    liste4.append(liste2)
+    liste4.append(liste3)
+    liste5:list[str]=[x.nom for x in liste4]
+    set=set(liste5)
+    list6:list[Variable]=[]
+    for x in liste4:
+        if x.nom in set:
+            if not inList(list6,x.nom):
+                list6.append(x)
+    return list6
+
+
+def resolution(eq:MultiplicationComplete):
+    for i in range(0, int(math.ceil(len(eq.valeurs) / 2))):
+        tmp = eq.getByOrder(i)
+        print("ordre", str(i), str(tmp))
+
+        listVariables=getVariables(tmp)
+        for x in range(0, 10):
+            for y in range(0, 10):
+                # renseiger les variables
+                pass
+
 n='28741'
 #list = ['2', '8', '7', '4', '1']
 list=[char for char in n]
@@ -155,3 +199,15 @@ print("var", str(listeVariables))
 eq = construitEquation(list, listeVariables)
 
 print("eq", str(eq))
+
+list2=eq.getByOrder(0)
+
+print("list2", str(list2))
+
+print("ordre1", str(eq.getByOrder(1)))
+
+
+resolution(eq)
+
+
+
