@@ -183,11 +183,15 @@ def resolution(eq:MultiplicationComplete):
         tmp = eq.getByOrder(i)
         print("ordre", str(i), str(tmp))
 
-        listVariables=getVariables(tmp)
-        for x in range(0, 10):
-            for y in range(0, 10):
-                # renseiger les variables
-                pass
+        listVariables:list[Variable]=getVariables(tmp)
+        for v in listVariables:
+            for x in range(0, 10):
+                v.valeur=x
+            v.valeur=-1
+
+
+
+
 
 n='28741'
 #list = ['2', '8', '7', '4', '1']
