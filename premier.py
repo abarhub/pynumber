@@ -1,8 +1,9 @@
 import math
+import time
 
 
 def isprime(number: int) -> bool:
-    for i in [x for x in range(2, int(number/2)) if (x==2 or x%2==1) and x<=math.sqrt(x)]:
+    for i in [x for x in range(2, int(number / 2)) if (x == 2 or x % 2 == 1) and x <= math.sqrt(x)]:
         if i >= number:
             break
         elif number % i == 0:
@@ -10,12 +11,39 @@ def isprime(number: int) -> bool:
     return True
 
 
-def listePrime():
-    print('liste de nombres premiers')
-    for x in range(2, 50000):
+def listePrime(max: int, resultat):
+    for x in range(2, max):
         if isprime(x):
-            print(x)
+            resultat(x)
 
 
+def noop(x: int):
+    pass
 
-listePrime()
+
+def listePrimeSansAffichage(max: int):
+    listePrime(max, noop)
+
+
+def listePrimeAvecAffichage(max: int):
+    print('liste de nombres premiers')
+    listePrime(max, print)
+
+
+# max:int=100
+max: int = 50000
+# max:int=100000
+
+calculTemps = True
+
+if calculTemps:
+    start = time.time()
+
+    listePrimeSansAffichage(max)
+
+    end = time.time()
+    elapsed = end*1000 - start*1000
+
+    print(f'Temps d\'exécution : {elapsed}ms')
+else:
+    listePrimeAvecAffichage(max)

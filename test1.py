@@ -84,7 +84,7 @@ class Mult:
         if self.x != None:
             x1 = self.x.copy()
         if self.y != None:
-            y1 = self.x.copy()
+            y1 = self.y.copy()
         m: Mult = Mult(x1, y1, self.ordre)
         return m
 
@@ -204,9 +204,13 @@ def inList(liste: list[Variable], nom: str) -> bool:
     return False
 
 
-def getVariables(liste: list[Mult]) -> list[Variable]:
-    liste2: list[Variable] = [x.x for x in liste if x.x != None and x.x.valeur == -1]
-    liste3: list[Variable] = [x.y for x in liste if x.y != None and x.y.valeur == -1]
+def getVariables(liste: list[Mult], nonAffecte: bool) -> list[Variable]:
+    if nonAffecte:
+        liste2: list[Variable] = [x.x for x in liste if x.x != None and x.x.valeur == -1]
+        liste3: list[Variable] = [x.y for x in liste if x.y != None and x.y.valeur == -1]
+    else:
+        liste2: list[Variable] = [x.x for x in liste if x.x != None]
+        liste3: list[Variable] = [x.y for x in liste if x.y != None]
     liste4: list[Variable] = []
     liste4.extend(liste2)
     liste4.extend(liste3)
@@ -254,12 +258,15 @@ def listValue(n: int) -> list[list[int]]:
     return res
 
 
-def estValide(eq: MultiplicationComplete, ordre: int) -> bool:
+def estValide(eq: MultiplicationComplete, ordre: int, exacte: bool = False) -> bool:
     res = eq.calcul(ordre)
     if res == -1:
         return False
     res2 = eq.valeur(ordre)
-    return (res - res2) % (10 ** (ordre + 1)) == 0
+    if exacte:
+        return res == res2
+    else:
+        return (res - res2) % (10 ** (ordre + 1)) == 0
 
 
 def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: list[MultiplicationComplete]):
@@ -270,7 +277,7 @@ def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: 
     #     print("eq", str(eq))
     #     return
 
-    listVariables: list[Variable] = getVariables(tmp)
+    listVariables: list[Variable] = getVariables(tmp, True)
 
     listValeur: list[list[int]] = listValue(len(listVariables))
 
@@ -281,7 +288,7 @@ def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: 
         for i in range(0, len(val)):
             v = listVariables[i]
             v.valeur = val[i]
-        if estValide(eq, ordre):
+        if estValide(eq, ordre, ordre + 1 == max):
             if ordre + 1 < max:
                 resolution2(eq, ordre + 1, max, listResultat)
             else:
@@ -297,6 +304,18 @@ def resolution(eq: MultiplicationComplete):
     res: list[MultiplicationComplete] = []
     resolution2(eq, 0, len(eq.valeurs), res)
     print('resultat:', str(res))
+    i = 1
+    for res2 in res:
+        print('resultat ', str(i))
+        listeVar: list[Variable] = getVariables(res2.liste, False)
+        # liste1 = [x for x in listeVar if x.nom.startsWith('x')]
+        liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
+        liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
+        print('liste1:', str(liste1))
+        print('liste2:', str(liste2))
+        # print('listeVar:', str(listeVar))
+        i += 1
+
     # for i in range(0, int(math.ceil(len(eq.valeurs) / 2))):
     #     tmp = eq.getByOrder(i)
     #     print("ordre", str(i), str(tmp))
@@ -310,8 +329,8 @@ def resolution(eq: MultiplicationComplete):
 
 
 # n = '28741'
-n = '21'
-# n = '115'
+#n = '21'
+n = '115'
 # list = ['2', '8', '7', '4', '1']
 list = [char for char in n]
 listeVariables: ListVariable = construit(list)
