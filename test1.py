@@ -1,4 +1,5 @@
 import math
+import unittest
 from builtins import list
 
 
@@ -88,23 +89,6 @@ class Mult:
         m: Mult = Mult(x1, y1, self.ordre)
         return m
 
-
-# class Equation:
-#     list = []
-#     valeur = 0
-#
-#     def __str__(self):
-#         i = 0
-#         s = ''
-#         while i < len(self.list):
-#             if i > 0:
-#                 s += ' + '
-#             tmp = self.list[i]
-#             s += str(tmp)
-#             i = i + 1
-#         return s
-
-
 class MultiplicationComplete:
     liste: list[Mult] = []
     valeurs: list[int] = []
@@ -173,7 +157,6 @@ def construit(numberList: list[str]) -> ListVariable:
             list.liste.append(tmp)
         i = i + 1
 
-    # list=['z'+str(x+1) for x in range(len(numberList))]
     return list
 
 
@@ -189,10 +172,7 @@ def construitEquation(numberList: list[str], listeVariables: ListVariable) -> Mu
             varx = listeVariables.get('x' + str(x))
             vary = listeVariables.get('y' + str(y))
             if varx is not None and vary is not None:
-                # tmp = Equation()
-                # liste.liste.append(tmp)
                 tmp2 = Mult(varx, vary, x + y - 2)
-                # tmp.list.append(tmp2)
                 liste.liste.append(tmp2)
     return liste
 
@@ -273,10 +253,6 @@ def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: 
     tmp = eq.getByOrder(ordre)
     print("ordre", str(ordre), str(tmp))
 
-    # if len(tmp)==0:
-    #     print("eq", str(eq))
-    #     return
-
     listVariables: list[Variable] = getVariables(tmp, True)
 
     listValeur: list[list[int]] = listValue(len(listVariables))
@@ -313,38 +289,36 @@ def resolution(eq: MultiplicationComplete):
         liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
         print('liste1:', str(liste1))
         print('liste2:', str(liste2))
-        # print('listeVar:', str(listeVar))
         i += 1
 
-    # for i in range(0, int(math.ceil(len(eq.valeurs) / 2))):
-    #     tmp = eq.getByOrder(i)
-    #     print("ordre", str(i), str(tmp))
-    #
-    #     listVariables: list[Variable] = getVariables(tmp)
-    #
-    #     listValeur = listValue(len(listVariables))
-    #
-    #     print("listVariables", str(listVariables))
-    #     print("listValeur", str(listValeur))
+
+def main():
+    # n = '28741'
+    # n = '21'
+    n = '115'
+    list = [char for char in n]
+    listeVariables: ListVariable = construit(list)
+
+    print("var", str(listeVariables))
+
+    eq = construitEquation(list, listeVariables)
+
+    print("eq", str(eq))
+
+    list2 = eq.getByOrder(0)
+
+    print("list2", str(list2))
+
+    print("ordre1", str(eq.getByOrder(1)))
+
+    resolution(eq)
+
+# les tests
+class UneClasseDeTest(unittest.TestCase):
+
+    def test_simple(self):
+        self.assertTrue(True)
 
 
-# n = '28741'
-#n = '21'
-n = '115'
-# list = ['2', '8', '7', '4', '1']
-list = [char for char in n]
-listeVariables: ListVariable = construit(list)
-
-print("var", str(listeVariables))
-
-eq = construitEquation(list, listeVariables)
-
-print("eq", str(eq))
-
-list2 = eq.getByOrder(0)
-
-print("list2", str(list2))
-
-print("ordre1", str(eq.getByOrder(1)))
-
-resolution(eq)
+if __name__ == '__main__':
+    main()
