@@ -1,0 +1,23 @@
+{
+  "name": "pynumber",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc docs/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abarhub/pynumber.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abarhub/pynumber/issues"
+  },
+  "homepage": "https://github.com/abarhub/pynumber#readme",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^4.5.3"
+  }
+}
