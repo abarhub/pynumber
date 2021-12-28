@@ -1,6 +1,5 @@
 import math
 import time
-import unittest
 
 
 def isprime(number: int) -> bool:
@@ -54,5 +53,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

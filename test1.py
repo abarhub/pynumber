@@ -115,11 +115,15 @@ class MultiplicationComplete:
 
     def calcul(self, ordre: int) -> int:
         res: int = 0
-        for i in range(0, ordre + 1):
-            mult: Mult = self.liste[i]
-            if mult.x.valeur == -1 or mult.y.valeur == -1:
-                return -1
-            res += mult.x.valeur * mult.y.valeur * 10 ** i
+        # for i in range(0, ordre + 1):
+        # mult: Mult = self.liste[i]
+        # for i in range(0, len(self.liste)):
+        # mult: Mult = self.liste[i]
+        for mult in self.liste:
+            if mult.ordre <= ordre:
+                if mult.x.valeur == -1 or mult.y.valeur == -1:
+                    return -1
+                res += mult.x.valeur * mult.y.valeur * 10 ** mult.ordre
         return res
 
     def valeur(self, ordre: int) -> int:
@@ -252,7 +256,8 @@ def estValide(eq: MultiplicationComplete, ordre: int, exacte: bool = False) -> b
         return (res - res2) % (10 ** (ordre + 1)) == 0
 
 
-def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: list[MultiplicationComplete]):
+def resolution2(eq: MultiplicationComplete, ordre: int, max: int) -> list[MultiplicationComplete]:
+    listResultat: list[MultiplicationComplete] = []
     tmp = eq.getByOrder(ordre)
     print("ordre", str(ordre), str(tmp))
 
@@ -267,9 +272,10 @@ def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: 
         for i in range(0, len(val)):
             v = listVariables[i]
             v.valeur = val[i]
-        if estValide(eq, ordre, ordre + 1 == max):
+        if estValide(eq, ordre, ordre + 1 >= max):
             if ordre + 1 < max:
-                resolution2(eq, ordre + 1, max, listResultat)
+                tmp2 = resolution2(eq, ordre + 1, max)
+                listResultat.extend(tmp2)
             else:
                 listResultat.append(eq.copy())
                 print("eq", str(eq))
@@ -277,29 +283,11 @@ def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listResultat: 
             v = listVariables[i]
             v.valeur = -1
 
-
-def resolution(eq: MultiplicationComplete):
-    # resolution2(eq, 0, int(math.ceil(len(eq.valeurs) / 2)))
-    res: list[MultiplicationComplete] = []
-    resolution2(eq, 0, len(eq.valeurs), res)
-    print('resultat:', str(res))
-    i = 1
-    for res2 in res:
-        print('resultat ', str(i))
-        listeVar: list[Variable] = getVariables(res2.liste, False)
-        # liste1 = [x for x in listeVar if x.nom.startsWith('x')]
-        liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
-        liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
-        print('liste1:', str(liste1))
-        print('liste2:', str(liste2))
-        i += 1
+    return listResultat
 
 
-def main():
-    # n = '28741'
-    # n = '21'
-    n = '115'
-    list = [char for char in n]
+def calcul_resolution(nombre: str, affichage_resultat: bool) -> list[MultiplicationComplete]:
+    list = [char for char in nombre]
     listeVariables: ListVariable = construit(list)
 
     print("var", str(listeVariables))
@@ -314,7 +302,30 @@ def main():
 
     print("ordre1", str(eq.getByOrder(1)))
 
-    resolution(eq)
+    res: list[MultiplicationComplete] = []
+    res = resolution2(eq, 0, len(eq.valeurs))
+
+    if affichage_resultat:
+        print('resultat:', str(res))
+        i = 1
+        for res2 in res:
+            print('resultat ', str(i))
+            listeVar: list[Variable] = getVariables(res2.liste, False)
+            liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
+            liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
+            print('liste1:', str(liste1))
+            print('liste2:', str(liste2))
+            i += 1
+
+    return res
+
+
+def main():
+    n = '28741'
+    # n = '21'
+    # n = '115'
+
+    calcul_resolution(n, True)
 
 
 if __name__ == '__main__':
