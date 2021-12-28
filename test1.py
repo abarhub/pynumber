@@ -1,5 +1,4 @@
 import math
-import unittest
 from builtins import list
 
 
@@ -44,7 +43,10 @@ class Constante:
 
 
 class ListVariable:
-    liste: list[Variable] = []
+    liste: list[Variable]
+
+    def __init__(self):
+        self.liste = []
 
     def __str__(self):
         i = 0
@@ -88,6 +90,7 @@ class Mult:
             y1 = self.y.copy()
         m: Mult = Mult(x1, y1, self.ordre)
         return m
+
 
 class MultiplicationComplete:
     liste: list[Mult] = []
@@ -146,18 +149,18 @@ class MultiplicationComplete:
 
 def construit(numberList: list[str]) -> ListVariable:
     i = 0
-    list = ListVariable()
+    list2 = ListVariable()
     while i < len(numberList):
         tmp = Variable('z' + str(i + 1), numberList[len(numberList) - 1 - i])
-        list.liste.append(tmp)
+        list2.liste.append(tmp)
         tmp = Variable('x' + str(i + 1), -1)
-        list.liste.append(tmp)
+        list2.liste.append(tmp)
         if i < len(numberList) / 2:
             tmp = Variable('y' + str(i + 1), -1)
-            list.liste.append(tmp)
+            list2.liste.append(tmp)
         i = i + 1
 
-    return list
+    return list2
 
 
 def construitEquation(numberList: list[str], listeVariables: ListVariable) -> MultiplicationComplete:
@@ -312,12 +315,6 @@ def main():
     print("ordre1", str(eq.getByOrder(1)))
 
     resolution(eq)
-
-# les tests
-class UneClasseDeTest(unittest.TestCase):
-
-    def test_simple(self):
-        self.assertTrue(True)
 
 
 if __name__ == '__main__':
