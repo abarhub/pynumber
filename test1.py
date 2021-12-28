@@ -321,9 +321,10 @@ def calcul_resolution(nombre: str, affichage_resultat: bool) -> list[Multiplicat
 
 
 def main():
-    n = '28741'
+    # n = '28741'
     # n = '21'
-    # n = '115'
+    n = '115'
+    # n = '99400891'
 
     calcul_resolution(n, True)
 
