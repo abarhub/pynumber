@@ -1,72 +1,83 @@
-// function greeter(person) {
-//   return "Hello, " + person;
-// }
-
-function createInput(name, placeholder, value, parent) {
-    var tmp2 = document.createElement('input');
+function createInput(name: string, placeholder: string, value: string, parent, classe: string): void {
+    const tmp2 = document.createElement('input');
     tmp2.setAttribute("type", "text");
     tmp2.setAttribute("name", name);
     tmp2.setAttribute("placeholder", placeholder);
     tmp2.setAttribute("value", value);
-    tmp2.setAttribute("class", "case");
+    tmp2.setAttribute("class", "case " + classe);
     parent.appendChild(tmp2);
-
 }
 
-// let user = "Jane User";
+function construitCases(x: string, y: string): void {
 
-//document.body.textContent = greeter(user);
+    const elt = document.getElementById('doc');
 
-function construitCases(x, y) {
-
-    let elt = document.getElementById('doc');
-
-    let tailleX = x.length;
-    let tailleY = y.length;
+    const tailleX = x.length;
+    const tailleY = y.length;
 
     if (elt != null) {
 
         let newEltx = document.getElementById('xValeur');
 
-        for (let i = x.length - 1; i >= 0; i--) {
-            var tmp = document.createElement('div');
-            //newElt.textContent = "toto";
+        for (let i = tailleX - 1; i >= 0; i--) {
+            const tmp = document.createElement('div');
             newEltx.appendChild(tmp);
 
             const name = "x" + (i + 1);
-            createInput(name, name, "" + x[x.length - 1 - i], tmp);
+            createInput(name, name, "" + x[tailleX - 1 - i], tmp, 'case-x');
         }
 
-        let newElty = document.getElementById('yValeur');
+        const newElty = document.getElementById('yValeur');
 
-        for (let i = y.length - 1; i >= 0; i--) {
-            var tmp = document.createElement('div');
-            //newElt.textContent = "toto";
+        for (let i = tailleY - 1; i >= 0; i--) {
+            const tmp = document.createElement('div');
             newElty.appendChild(tmp);
 
             const name = "y" + (i + 1);
-            createInput(name, name, "" + y[y.length - 1 - i], tmp);
+            createInput(name, name, "" + y[tailleY - 1 - i], tmp, 'case-y');
+        }
+
+        // retenues
+
+        const eltRetenues = document.getElementById('retenues');
+
+        for (let i = x.length - 1 + y.length - 1; i >= 0; i--) {
+            const name = "r" + (i + 1);
+            createInput(name, name, "0", eltRetenues, 'case-retenues');
         }
 
         // valeurs intermediaires
 
-        let eltValInterm = document.getElementById('valeursIntermediaires');
+        const eltValInterm = document.getElementById('valeursIntermediaires');
 
-        for (let j = 0;j<y.length; j++) {
+        for (let j = 0; j < tailleY; j++) {
 
-            var tmp = document.createElement('div');
+            const tmp = document.createElement('div');
             tmp.setAttribute("class", "d-flex justify-content-end")
             eltValInterm.appendChild(tmp);
 
-            for (let i = x.length - 1; i >= 0; i--) {
+            for (let i = tailleX - 1; i >= 0; i--) {
 
                 const name = "x" + (i + 1) + "*y" + (j + 1);
-                createInput(name, name, "" + (x[x.length - i - 1] * y[y.length - j - 1]), tmp);
-
+                const nx = parseInt(x[tailleX - i - 1]);
+                const ny = parseInt(y[tailleY - j - 1]);
+                const v = nx * ny;
+                const v1 = v % 10;
+                const v2 = (v - v1) / 10;
+                createInput(name, name, "" + v1, tmp, 'case-intermediaire');
+                if (v2 > 0) {
+                    const eltRet = document.getElementsByName('r' + (i + j + 2));
+                    if (eltRet.length > 0) {
+                        const v3 = eltRet[0].getAttribute('value');
+                        let n = parseInt(v3);
+                        n += v2;
+                        eltRet[0].setAttribute('value', '' + n);
+                    }
+                }
             }
 
             for (let k = 0; k < j; k++) {
-                let tmp2 = document.createElement('div');
+                const tmp2 = document.createElement('div');
                 tmp2.textContent = '.';
                 tmp2.setAttribute("style", "width:50px;");
                 tmp2.setAttribute("class", "text-center");
@@ -78,11 +89,11 @@ function construitCases(x, y) {
 
         // résultat
 
-        let eltResultat = document.getElementById('resultat');
+        const eltResultat = document.getElementById('resultat');
 
         for (let i = x.length - 1 + y.length - 1; i >= 0; i--) {
             const name = "z" + (i + 1);
-            createInput(name, name, "", eltResultat);
+            createInput(name, name, "", eltResultat, 'case-resultat');
         }
 
     }
@@ -97,8 +108,8 @@ let y = '';
 //x = "100";
 //y = "10";
 
-x="123";
-y="45";
+x = "123";
+y = "45";
 
 construitCases(x, y);
 
