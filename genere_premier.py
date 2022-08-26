@@ -28,8 +28,8 @@ def listePrimeSansAffichage(min:int,max: int, f):
 def main():
     min=2
     #max: int = 100
-    max: int = 50000
-    # max:int=100000
+    #max: int = 50000
+    max:int=100000
 
     with open('files/primes_'+str(min)+'_'+str(max)+'.txt', "w") as f:
 
