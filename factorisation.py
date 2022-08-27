@@ -258,7 +258,7 @@ class Resolution:
         listVariables: list[Variable] = self.getVariables(tmp, True)
 
         start = time.time()
-        listValeur: list[list[int]] = listValueParam(len(listVariables))
+        listValeur: list[list[int]] = listValueParam(len(listVariables), ordre)
 
         end = time.time()
         elapsed = end * 1000 - start * 1000
@@ -357,7 +357,7 @@ class ListValue:
         else:
             return tab2
 
-    def listValue(self, n: int) -> list[list[int]]:
+    def listValue(self, n: int, ordre: int) -> list[list[int]]:
         res: list[list[int]] = []
         res2: list[int] = [0 for _ in range(0, n)]
         res.append(res2)
@@ -381,7 +381,7 @@ class ListValueMemory:
         self.mem_list_init1: bool = False
         self.listValue = ListValue()
 
-    def listValueMemory(self, n: int) -> list[list[int]]:
+    def listValueMemory(self, n: int, ordre: int) -> list[list[int]]:
         # return listValue(n)
         if n == 2:
             print('listValueMemory', n, self.mem_list_init2)
@@ -400,6 +400,50 @@ class ListValueMemory:
         return self.listValue.listValue(n)
 
 
+class ListValueOptimise:
+
+    def __init__(self):
+        self.mem_list2: list[list[int]] = []
+        self.mem_list1: list[list[int]] = []
+        self.mem_list_init2: bool = False
+        self.mem_list_init1: bool = False
+        self.listValue = ListValue()
+
+    def inList(self, liste: list[list[int]], list2: list[int]) -> bool:
+        for x in liste:
+            for y in list2:
+                if y in x:
+                    return True
+        return False
+
+    def listValueOptimised(self, n: int, ordre: int) -> list[list[int]]:
+        list = self.listValue.listValue(n, ordre)
+
+        if ordre == 0:
+            tmp = [0, 1]
+        elif ordre == 2 or ordre == 3:
+            tmp = [0, 4, 7]
+        else:
+            tmp = [0, 8, 2]
+
+        # list2 = filter(lambda item: item, list)
+        # list2 = [item for item in list if (self.inList(item, tmp))]
+        list2 = []
+        for tmp2 in list:
+            trouve = False
+            for m in tmp:
+                if m in tmp2:
+                    trouve = True
+                    break
+            if trouve:
+                list2.append(tmp2)
+
+        print(f'diff={len(list) - len(list2)}')
+
+        return list2
+        # return list
+
+
 def main():
     n = '28741'
     # n = '21'
@@ -409,16 +453,25 @@ def main():
     resolution = Resolution()
     listValue = ListValue()
     listValueMemory = ListValueMemory()
+    listValueOptimise = ListValueOptimise()
+
+    methode_calcul = 1
+    # methode_calcul = 2
+    methode_calcul = 3
 
     start = time.time()
 
-    resolution.calcul_resolution(n, True, listValue.listValue)
-    # resolution.calcul_resolution(n, True, listValueMemory.listValueMemory)
+    if methode_calcul == 1:
+        resolution.calcul_resolution(n, True, listValue.listValue)
+    elif methode_calcul == 2:
+        resolution.calcul_resolution(n, True, listValueMemory.listValueMemory)
+    elif methode_calcul == 3:
+        resolution.calcul_resolution(n, True, listValueOptimise.listValueOptimised)
 
     end = time.time()
     elapsed = end * 1000 - start * 1000
 
-    print(f'Temps d\'exécution : {elapsed}ms')
+    print(f'Temps d\'exécution (methode {methode_calcul}) : {elapsed}ms')
     print(
         f'Temps d\'exécution detailé : total={resolution.elapsed_total}ms, '
         f'construit={resolution.elapsed_construit}ms, '
