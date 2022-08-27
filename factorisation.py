@@ -258,7 +258,7 @@ class Resolution:
         listVariables: list[Variable] = self.getVariables(tmp, True)
 
         start = time.time()
-        listValeur: list[list[int]] = listValueParam(len(listVariables), ordre)
+        listValeur: list[list[int]] = listValueParam(len(listVariables), ordre, eq, max)
 
         end = time.time()
         elapsed = end * 1000 - start * 1000
@@ -357,7 +357,7 @@ class ListValue:
         else:
             return tab2
 
-    def listValue(self, n: int, ordre: int) -> list[list[int]]:
+    def listValue(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
         res: list[list[int]] = []
         res2: list[int] = [0 for _ in range(0, n)]
         res.append(res2)
@@ -381,23 +381,23 @@ class ListValueMemory:
         self.mem_list_init1: bool = False
         self.listValue = ListValue()
 
-    def listValueMemory(self, n: int, ordre: int) -> list[list[int]]:
+    def listValueMemory(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
         # return listValue(n)
         if n == 2:
             print('listValueMemory', n, self.mem_list_init2)
             if not self.mem_list_init2:
-                self.mem_list2 = self.listValue.listValue(n)
+                self.mem_list2 = self.listValue.listValue(n, ordre, eq, max)
                 self.mem_list_init2 = True
             return self.mem_list2
         elif n == 1:
             print('listValueMemory', n, self.mem_list_init1)
             if not self.mem_list_init1:
-                self.mem_list1 = self.listValue.listValue(n)
+                self.mem_list1 = self.listValue.listValue(n, ordre, eq, max)
                 self.mem_list_init1 = True
             return self.mem_list1
         else:
             print('listValueMemory', n)
-        return self.listValue.listValue(n)
+        return self.listValue.listValue(n, ordre, eq, max)
 
 
 class ListValueOptimise:
@@ -416,15 +416,25 @@ class ListValueOptimise:
                     return True
         return False
 
-    def listValueOptimised(self, n: int, ordre: int) -> list[list[int]]:
-        list = self.listValue.listValue(n, ordre)
+    def listValueOptimised(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
+        list = self.listValue.listValue(n, ordre, eq, max)
 
-        if ordre == 0:
-            tmp = [0, 1]
-        elif ordre == 2 or ordre == 3:
-            tmp = [0, 4, 7]
-        else:
-            tmp = [0, 8, 2]
+        tmp = []
+        if eq.valeurs == [1, 4, 7, 8, 2]:
+            if ordre == 0:
+                tmp = [0, 1]
+            elif ordre == 2 or ordre == 3:
+                tmp = [0, 4, 7]
+            else:
+                tmp = [0, 8, 2]
+        elif eq.valeurs == [1, 9, 8, 0, 0, 4, 9, 9]:
+            if ordre == 0:
+                tmp = [3, 7]
+            else:
+                tmp = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        if len(tmp) == 0:
+            return list
 
         # list2 = filter(lambda item: item, list)
         # list2 = [item for item in list if (self.inList(item, tmp))]
@@ -445,10 +455,10 @@ class ListValueOptimise:
 
 
 def main():
-    n = '28741'
+    # n = '28741'
     # n = '21'
     # n = '115'
-    # n = '99400891'
+    n = '99400891'
 
     resolution = Resolution()
     listValue = ListValue()
@@ -457,7 +467,7 @@ def main():
 
     methode_calcul = 1
     # methode_calcul = 2
-    methode_calcul = 3
+    # methode_calcul = 3
 
     start = time.time()
 
