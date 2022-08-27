@@ -145,235 +145,286 @@ class MultiplicationComplete:
         return res
 
 
-#                   A  B  C  D
-#                         E  F
-#                 =============
-#                   AF BF CF DF
-#                AE BE CE DE
-#
-#
-#
-#
+class Stat:
+
+    def __init__(self):
+        self.nb_valide = 0
+        self.nb_invalide = 0
+        self.nb_noeuds = 0
+        self.ordre = 0
+        self.elapse_listValeur = 0
+
+    def __str__(self):
+        return '(v=' + str(self.nb_valide) + ',i=' + str(self.nb_invalide) + ',n=' + str(self.nb_noeuds) + ',o=' + str(
+            self.ordre) + ',e=' + str(self.elapse_listValeur) + ')'
+
+    def __repr__(self):
+        return self.__str__()
 
 
-def construit(numberList: list[str]) -> ListVariable:
-    i = 0
-    list2 = ListVariable()
-    while i < len(numberList):
-        tmp = Variable('z' + str(i + 1), numberList[len(numberList) - 1 - i])
-        list2.liste.append(tmp)
-        tmp = Variable('x' + str(i + 1), -1)
-        list2.liste.append(tmp)
-        if i < len(numberList) / 2:
-            tmp = Variable('y' + str(i + 1), -1)
+class Resolution:
+
+    def __init__(self):
+        self.stat = []
+
+    #                   A  B  C  D
+    #                         E  F
+    #                 =============
+    #                   AF BF CF DF
+    #                AE BE CE DE
+    #
+    #
+    #
+    #
+    def construit(self, numberList: list[str]) -> ListVariable:
+        i = 0
+        list2 = ListVariable()
+        while i < len(numberList):
+            tmp = Variable('z' + str(i + 1), numberList[len(numberList) - 1 - i])
             list2.liste.append(tmp)
-        i = i + 1
+            tmp = Variable('x' + str(i + 1), -1)
+            list2.liste.append(tmp)
+            if i < len(numberList) / 2:
+                tmp = Variable('y' + str(i + 1), -1)
+                list2.liste.append(tmp)
+            i = i + 1
 
-    return list2
+        return list2
 
+    def construitEquation(self, numberList: list[str], listeVariables: ListVariable) -> MultiplicationComplete:
+        nb: int = len(numberList)
+        nb2: int = int(math.ceil(nb / 2))
+        # nb = 1
+        # nb2 = 1
+        liste: MultiplicationComplete = MultiplicationComplete()
+        liste.valeurs = [int(x) for x in reversed(numberList)]
+        for x in range(1, nb + 1):
+            for y in range(1, nb2 + 1):
+                varx = listeVariables.get('x' + str(x))
+                vary = listeVariables.get('y' + str(y))
+                if varx is not None and vary is not None:
+                    tmp2 = Mult(varx, vary, x + y - 2)
+                    liste.liste.append(tmp2)
+        return liste
 
-def construitEquation(numberList: list[str], listeVariables: ListVariable) -> MultiplicationComplete:
-    nb: int = len(numberList)
-    nb2: int = int(math.ceil(nb / 2))
-    # nb = 1
-    # nb2 = 1
-    liste: MultiplicationComplete = MultiplicationComplete()
-    liste.valeurs = [int(x) for x in reversed(numberList)]
-    for x in range(1, nb + 1):
-        for y in range(1, nb2 + 1):
-            varx = listeVariables.get('x' + str(x))
-            vary = listeVariables.get('y' + str(y))
-            if varx is not None and vary is not None:
-                tmp2 = Mult(varx, vary, x + y - 2)
-                liste.liste.append(tmp2)
-    return liste
-
-
-def inList(liste: list[Variable], nom: str) -> bool:
-    for x in liste:
-        if x.nom == nom:
-            return True
-    return False
-
-
-def getVariables(liste: list[Mult], nonAffecte: bool) -> list[Variable]:
-    if nonAffecte:
-        liste2: list[Variable] = [x.x for x in liste if x.x != None and x.x.valeur == -1]
-        liste3: list[Variable] = [x.y for x in liste if x.y != None and x.y.valeur == -1]
-    else:
-        liste2: list[Variable] = [x.x for x in liste if x.x != None]
-        liste3: list[Variable] = [x.y for x in liste if x.y != None]
-    liste4: list[Variable] = []
-    liste4.extend(liste2)
-    liste4.extend(liste3)
-    liste5: list[str] = [x.nom for x in liste4]
-    set2 = set(liste5)
-    list6: list[Variable] = []
-    for x in liste4:
-        if x.nom in set2:
-            if not inList(list6, x.nom):
-                list6.append(x)
-    return list6
-
-
-def incr(tab: list[int]) -> list[int]:
-    len2 = len(tab)
-    tab2: list[int] = tab.copy()
-    pos = len2 - 1
-    while pos >= 0:
-        v = tab2[pos]
-        if v < 9:
-            v = v + 1
-            tab2[pos] = v
-            break
-        else:
-            tab2[pos] = 0
-            pos = pos - 1
-    if pos < 0:
-        return []
-    else:
-        return tab2
-
-
-def listValue(n: int) -> list[list[int]]:
-    res: list[list[int]] = []
-    res2: list[int] = [0 for _ in range(0, n)]
-    res.append(res2)
-
-    res3: list[int] = res2.copy()
-    while True:
-        res3 = incr(res3)
-        if len(res3) == 0:
-            break
-        else:
-            res.append(res3)
-    return res
-
-
-def estValide(eq: MultiplicationComplete, ordre: int, exacte: bool = False) -> bool:
-    res = eq.calcul(ordre)
-    if res == -1:
+    def inList(self, liste: list[Variable], nom: str) -> bool:
+        for x in liste:
+            if x.nom == nom:
+                return True
         return False
-    res2 = eq.valeur(ordre)
-    if exacte:
-        return res == res2
-    else:
-        return (res - res2) % (10 ** (ordre + 1)) == 0
 
+    def getVariables(self, liste: list[Mult], nonAffecte: bool) -> list[Variable]:
+        if nonAffecte:
+            liste2: list[Variable] = [x.x for x in liste if x.x != None and x.x.valeur == -1]
+            liste3: list[Variable] = [x.y for x in liste if x.y != None and x.y.valeur == -1]
+        else:
+            liste2: list[Variable] = [x.x for x in liste if x.x != None]
+            liste3: list[Variable] = [x.y for x in liste if x.y != None]
+        liste4: list[Variable] = []
+        liste4.extend(liste2)
+        liste4.extend(liste3)
+        liste5: list[str] = [x.nom for x in liste4]
+        set2 = set(liste5)
+        list6: list[Variable] = []
+        for x in liste4:
+            if x.nom in set2:
+                if not self.inList(list6, x.nom):
+                    list6.append(x)
+        return list6
 
-def resolution2(eq: MultiplicationComplete, ordre: int, max: int, listValueParam) -> list[MultiplicationComplete]:
-    listResultat: list[MultiplicationComplete] = []
-    tmp = eq.getByOrder(ordre)
-    print("ordre", str(ordre), str(tmp))
+    def estValide(self, eq: MultiplicationComplete, ordre: int, exacte: bool = False) -> bool:
+        res = eq.calcul(ordre)
+        if res == -1:
+            return False
+        res2 = eq.valeur(ordre)
+        if exacte:
+            return res == res2
+        else:
+            return (res - res2) % (10 ** (ordre + 1)) == 0
 
-    listVariables: list[Variable] = getVariables(tmp, True)
+    def resolution2(self, eq: MultiplicationComplete, ordre: int, max: int, listValueParam) -> list[
+        MultiplicationComplete]:
+        listResultat: list[MultiplicationComplete] = []
+        tmp = eq.getByOrder(ordre)
+        print("ordre", str(ordre), str(tmp))
 
-    listValeur: list[list[int]] = listValueParam(len(listVariables))
+        if ordre >= len(self.stat):
+            self.stat.append(Stat())
 
-    print("listVariables", str(listVariables))
-    print("listValeur", str(listValeur))
-    for val in listValeur:
-        # affectation des valeurs
-        for i in range(0, len(val)):
-            v = listVariables[i]
-            v.valeur = val[i]
-        if estValide(eq, ordre, ordre + 1 >= max):
-            if ordre + 1 < max:
-                tmp2 = resolution2(eq, ordre + 1, max, listValueParam)
-                listResultat.extend(tmp2)
+        stat = self.stat[ordre]
+        stat.nb_noeuds += 1
+        stat.ordre = ordre
+
+        listVariables: list[Variable] = self.getVariables(tmp, True)
+
+        start = time.time()
+        listValeur: list[list[int]] = listValueParam(len(listVariables))
+
+        end = time.time()
+        elapsed = end * 1000 - start * 1000
+        stat.elapse_listValeur += elapsed
+
+        print("listVariables", str(listVariables))
+        print("listValeur", str(listValeur))
+        for val in listValeur:
+            # affectation des valeurs
+            for i in range(0, len(val)):
+                v = listVariables[i]
+                v.valeur = val[i]
+            if self.estValide(eq, ordre, ordre + 1 >= max):
+                stat.nb_valide += 1
+                if ordre + 1 < max:
+                    tmp2 = self.resolution2(eq, ordre + 1, max, listValueParam)
+                    listResultat.extend(tmp2)
+                else:
+                    listResultat.append(eq.copy())
+                    print("eq", str(eq))
             else:
-                listResultat.append(eq.copy())
-                print("eq", str(eq))
-        for i in range(0, len(val)):
-            v = listVariables[i]
-            v.valeur = -1
+                stat.nb_invalide += 1
+            for i in range(0, len(val)):
+                v = listVariables[i]
+                v.valeur = -1
 
-    return listResultat
+        return listResultat
+
+    def calcul_resolution(self, nombre: str, affichage_resultat: bool, listValueParam) -> list[MultiplicationComplete]:
+        start_total = time.time()
+        list = [char for char in nombre]
+        start_construit = time.time()
+        listeVariables: ListVariable = self.construit(list)
+        end_construit = time.time()
+
+        print("var", str(listeVariables))
+
+        start_construit2 = time.time()
+        eq = self.construitEquation(list, listeVariables)
+        end_construit2 = time.time()
+
+        print("eq", str(eq))
+
+        list2 = eq.getByOrder(0)
+
+        print("list2", str(list2))
+
+        print("ordre1", str(eq.getByOrder(1)))
+
+        res: list[MultiplicationComplete] = []
+        start_resolve = time.time()
+        res = self.resolution2(eq, 0, len(eq.valeurs), listValueParam)
+        end_resolve = time.time()
+
+        start_affiche = time.time()
+        if affichage_resultat:
+            print('resultat:', str(res))
+            i = 1
+            for res2 in res:
+                print('resultat ', str(i))
+                listeVar: list[Variable] = self.getVariables(res2.liste, False)
+                liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
+                liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
+                print('liste1:', str(liste1))
+                print('liste2:', str(liste2))
+                i += 1
+        end_affiche = time.time()
+
+        end_total = time.time()
+        self.elapsed_total = end_total * 1000 - start_total * 1000
+        self.elapsed_construit = end_construit * 1000 - start_construit * 1000
+        self.elapsed_construit2 = end_construit2 * 1000 - start_construit2 * 1000
+        self.elapsed_resolve = end_resolve * 1000 - start_resolve * 1000
+        self.elapsed_affiche = end_affiche * 1000 - start_affiche * 1000
+
+        return res
 
 
-def calcul_resolution(nombre: str, affichage_resultat: bool, listValueParam=listValue) -> list[MultiplicationComplete]:
-    list = [char for char in nombre]
-    listeVariables: ListVariable = construit(list)
+class ListValue:
 
-    print("var", str(listeVariables))
+    def incr(self, tab: list[int]) -> list[int]:
+        len2 = len(tab)
+        tab2: list[int] = tab.copy()
+        pos = len2 - 1
+        while pos >= 0:
+            v = tab2[pos]
+            if v < 9:
+                v = v + 1
+                tab2[pos] = v
+                break
+            else:
+                tab2[pos] = 0
+                pos = pos - 1
+        if pos < 0:
+            return []
+        else:
+            return tab2
 
-    eq = construitEquation(list, listeVariables)
+    def listValue(self, n: int) -> list[list[int]]:
+        res: list[list[int]] = []
+        res2: list[int] = [0 for _ in range(0, n)]
+        res.append(res2)
 
-    print("eq", str(eq))
-
-    list2 = eq.getByOrder(0)
-
-    print("list2", str(list2))
-
-    print("ordre1", str(eq.getByOrder(1)))
-
-    res: list[MultiplicationComplete] = []
-    res = resolution2(eq, 0, len(eq.valeurs), listValueParam)
-
-    if affichage_resultat:
-        print('resultat:', str(res))
-        i = 1
-        for res2 in res:
-            print('resultat ', str(i))
-            listeVar: list[Variable] = getVariables(res2.liste, False)
-            liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
-            liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
-            print('liste1:', str(liste1))
-            print('liste2:', str(liste2))
-            i += 1
-
-    return res
-
-
-mem_list2: list[list[int]] = []
-mem_list1: list[list[int]] = []
-mem_list_init2: bool = False
-mem_list_init1: bool = False
+        res3: list[int] = res2.copy()
+        while True:
+            res3 = self.incr(res3)
+            if len(res3) == 0:
+                break
+            else:
+                res.append(res3)
+        return res
 
 
-def listValueMemory(n: int) -> list[list[int]]:
-    # return listValue(n)
-    global mem_list1
-    global mem_list2
-    global mem_list_init1
-    global mem_list_init2
-    if n == 2:
-        print('listValueMemory', n, mem_list_init2)
-        if not mem_list_init2:
-            mem_list2 = listValue(n)
-            mem_list_init2 = True
-        return mem_list2
-    elif n == 1:
-        print('listValueMemory', n, mem_list_init1)
-        if not mem_list_init1:
-            mem_list1 = listValue(n)
-            mem_list_init1 = True
-        return mem_list1
-    else:
-        print('listValueMemory', n)
-    return listValue(n)
+class ListValueMemory:
+
+    def __init__(self):
+        self.mem_list2: list[list[int]] = []
+        self.mem_list1: list[list[int]] = []
+        self.mem_list_init2: bool = False
+        self.mem_list_init1: bool = False
+        self.listValue = ListValue()
+
+    def listValueMemory(self, n: int) -> list[list[int]]:
+        # return listValue(n)
+        if n == 2:
+            print('listValueMemory', n, self.mem_list_init2)
+            if not self.mem_list_init2:
+                self.mem_list2 = self.listValue.listValue(n)
+                self.mem_list_init2 = True
+            return self.mem_list2
+        elif n == 1:
+            print('listValueMemory', n, self.mem_list_init1)
+            if not self.mem_list_init1:
+                self.mem_list1 = self.listValue.listValue(n)
+                self.mem_list_init1 = True
+            return self.mem_list1
+        else:
+            print('listValueMemory', n)
+        return self.listValue.listValue(n)
 
 
 def main():
-    # n = '28741'
+    n = '28741'
     # n = '21'
     # n = '115'
-    n = '99400891'
+    # n = '99400891'
 
-    global mem_list
-    global mem_list_init
-    mem_list = []
-    mem_list_init = False
+    resolution = Resolution()
+    listValue = ListValue()
+    listValueMemory = ListValueMemory()
 
     start = time.time()
 
-    # calcul_resolution(n, True)
-    calcul_resolution(n, True, listValueMemory)
+    resolution.calcul_resolution(n, True, listValue.listValue)
+    # resolution.calcul_resolution(n, True, listValueMemory.listValueMemory)
 
     end = time.time()
     elapsed = end * 1000 - start * 1000
 
     print(f'Temps d\'exécution : {elapsed}ms')
+    print(
+        f'Temps d\'exécution detailé : total={resolution.elapsed_total}ms, '
+        f'construit={resolution.elapsed_construit}ms, '
+        f'construit2={resolution.elapsed_construit2}ms, resolve={resolution.elapsed_resolve}ms, '
+        f'affiche={resolution.elapsed_affiche}ms')
+    print(f'stat:{resolution.stat}')
 
 
 if __name__ == '__main__':
