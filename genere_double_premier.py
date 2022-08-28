@@ -19,16 +19,19 @@ def listePrime(min: int, max: int, resultat):
 
 
 def genere_double_premier(min: int, max: int, nb_chiffre: int, f: TextIO):
+    print('calcul nombres premiers ...')
     list_prime = []
     listePrime(min, max, lambda x: list_prime.append(x))
+    print('calcul nombres premiers ok')
 
     min0 = 10 ** (nb_chiffre - 1)
     max0 = 10 ** (nb_chiffre) - 1
 
+    print('calcul decomposition ...')
     for i in range(min0, max0):
         if i > 2 and i % 2 == 0:
             continue
-        for x in list_prime:
+        for x in [x for x in list_prime if x < i]:
             if i % x == 0:
                 n = i / x
                 for y in list_prime:
@@ -37,6 +40,7 @@ def genere_double_premier(min: int, max: int, nb_chiffre: int, f: TextIO):
                         if m == 1:
                             print(str(x), '*', str(y), '=', str(i))
                             f.write(str(x) + '*' + str(y) + '=' + str(i) + '\n')
+    print('calcul decomposition ok')
 
 
 def main():
