@@ -1,5 +1,7 @@
+import copy
 import logging
 import random
+import time
 
 from factorisation import Resolution, ListValue, ListValueMemory, ListValueOptimise, MultiplicationComplete, \
     AbstractListValue
@@ -129,6 +131,42 @@ class ListValue2(AbstractListValue):
                     self.listResultat[o].append(tmp3)
 
 
+class ListValue3(AbstractListValue):
+
+    def __init__(self, listeValue2: ListValue2):
+        self.map = listeValue2.map
+        self.listResultat = {}
+        self.lastResult = listeValue2.listResultat
+        self.dejaTrouve = False
+
+    def listValue(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
+        if self.dejaTrouve:
+            return []
+        tmp = copy.deepcopy(self.map[n])
+        if ordre in self.lastResult:
+            tmp2 = self.lastResult[ordre]
+            list2 = [[x[0], x[1]] for x in tmp2 if x[2] == eq.valeurs]
+            list3 = []
+            list4 = []
+            for m in tmp:
+                contient = False
+                for g in list2:
+                    if len(m) == 2 and len(g) == 2 and m[0] == g[0] and m[1] == g[1]:
+                        contient = True
+                if contient:
+                    list3.append(m)
+                else:
+                    list4.append(m)
+            tmp = []
+            tmp.extend(list3)
+            tmp.extend(list4)
+        return tmp
+
+    def trouve(self, eq: MultiplicationComplete, ordre: int):
+        if not eq.isNonFactorise():
+            self.dejaTrouve = True
+
+
 def test4():
     logger = logging.getLogger(__name__)
     list = list_prime_number()
@@ -139,6 +177,9 @@ def test4():
     nb = 10
 
     listValue = ListValue2()
+    entree = []
+
+    start = time.time()
 
     for i in range(10):
         n01 = random.randint(0, max)
@@ -146,6 +187,7 @@ def test4():
         n1 = list[n01]
         n2 = list[n02]
         res = n1 * n2
+        entree.append((n1, n2, res))
 
         logger.info(f'n1={n1},n2={n2},res={res}')
         resolution = Resolution()
@@ -158,7 +200,31 @@ def test4():
 
         logger.info(f'result={res2}')
 
+    end = time.time()
+    elapsed = end * 1000 - start * 1000
+
     logger.info(f'listValue={listValue.listResultat}')
+
+    logger.info(f'resolution2')
+
+    listValue3 = ListValue3(listValue)
+
+    start2 = time.time()
+
+    for n in entree:
+        n1, n2, res = n
+        logger.info(f'n1={n1},n2={n2},res={res}')
+        resolution = Resolution()
+
+        res2 = resolution.calcul_resolution(str(res), True, listValue3)
+
+        logger.info(f'result={res2}')
+
+    end2 = time.time()
+    elapsed2 = end2 * 1000 - start2 * 1000
+
+    print(f'Temps d\'exécution (methode 1) : {elapsed}ms')
+    print(f'Temps d\'exécution (methode 2) : {elapsed2}ms')
 
 
 def main():
