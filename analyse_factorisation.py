@@ -138,6 +138,7 @@ class ListValue3(AbstractListValue):
         self.listResultat = {}
         self.lastResult = listeValue2.listResultat
         self.dejaTrouve = False
+        self.optimiseDejaTrouve = False
 
     def listValue(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
         if self.dejaTrouve:
@@ -163,7 +164,7 @@ class ListValue3(AbstractListValue):
         return tmp
 
     def trouve(self, eq: MultiplicationComplete, ordre: int):
-        if not eq.isNonFactorise():
+        if self.optimiseDejaTrouve and not eq.isNonFactorise():
             self.dejaTrouve = True
 
 
@@ -181,7 +182,7 @@ def test4():
 
     start = time.time()
 
-    for i in range(10):
+    for i in range(nb):
         n01 = random.randint(0, max)
         n02 = random.randint(0, max)
         n1 = list[n01]
@@ -209,11 +210,17 @@ def test4():
 
     listValue3 = ListValue3(listValue)
 
+    listValue3.optimiseDejaTrouve = False
+    listValue3.optimiseDejaTrouve = True
+
     start2 = time.time()
 
     for n in entree:
+        listValue3.dejaTrouve = False
+
         n1, n2, res = n
         logger.info(f'n1={n1},n2={n2},res={res}')
+
         resolution = Resolution()
 
         res2 = resolution.calcul_resolution(str(res), True, listValue3)
