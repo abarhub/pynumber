@@ -1,3 +1,4 @@
+import logging
 import math
 import time
 import timeit
@@ -264,9 +265,10 @@ class Resolution:
 
     def resolution2(self, eq: MultiplicationComplete, ordre: int, max: int, listValueParam) -> list[
         MultiplicationComplete]:
+        logger = logging.getLogger(__name__)
         listResultat: list[MultiplicationComplete] = []
         tmp = eq.getByOrder(ordre)
-        print("ordre", str(ordre), str(tmp))
+        logger.debug("ordre {ordre} {tmp}")
 
         if ordre >= len(self.stat):
             self.stat.append(Stat())
@@ -284,8 +286,8 @@ class Resolution:
         elapsed = end * 1000 - start * 1000
         stat.elapse_listValeur += elapsed
 
-        print("listVariables", str(listVariables))
-        print("listValeur", str(listValeur))
+        logger.debug("listVariables {listVariables}")
+        logger.debug("listValeur {listValeur}")
         for val in listValeur:
             # affectation des valeurs
             for i in range(0, len(val)):
@@ -298,7 +300,7 @@ class Resolution:
                     listResultat.extend(tmp2)
                 else:
                     listResultat.append(eq.copy())
-                    print("eq", str(eq))
+                    logger.debug("eq {eq}")
             else:
                 stat.nb_invalide += 1
             for i in range(0, len(val)):
@@ -309,24 +311,25 @@ class Resolution:
 
     def calcul_resolution(self, nombre: str, affichage_resultat: bool, listValueParam) -> list[MultiplicationComplete]:
         start_total = time.time()
+        logger = logging.getLogger(__name__)
         list = [char for char in nombre]
         start_construit = time.time()
         listeVariables: ListVariable = self.construit(list)
         end_construit = time.time()
 
-        print("var", str(listeVariables))
+        logger.debug("var {listeVariables}")
 
         start_construit2 = time.time()
         eq = self.construitEquation(list, listeVariables)
         end_construit2 = time.time()
 
-        print("eq", str(eq))
+        logger.debug("eq {eq}")
 
         list2 = eq.getByOrder(0)
 
-        print("list2", str(list2))
+        logger.debug(f"list2 {list2}")
 
-        print("ordre1", str(eq.getByOrder(1)))
+        logger.debug(f"ordre1 {eq.getByOrder(1)}")
 
         res: list[MultiplicationComplete] = []
         start_resolve = time.time()
@@ -335,15 +338,15 @@ class Resolution:
 
         start_affiche = time.time()
         if affichage_resultat:
-            print('resultat:', str(res))
+            logger.debug(f'resultat: {res}')
             i = 1
             for res2 in res:
-                print('resultat ', str(i))
+                logger.info(f'resultat {i}')
                 listeVar: list[Variable] = self.getVariables(res2.liste, False)
                 liste1: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('x')]
                 liste2: list[Variable] = [x for x in listeVar if x != None and x.nom.startswith('y')]
-                print('liste1:', str(liste1))
-                print('liste2:', str(liste2))
+                logger.info(f'liste1: {liste1}')
+                logger.info(f'liste2: {liste2}')
                 i += 1
         end_affiche = time.time()
 
@@ -402,21 +405,21 @@ class ListValueMemory:
         self.listValue = ListValue()
 
     def listValueMemory(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
-        # return listValue(n)
+        logger = logging.getLogger(__name__)
         if n == 2:
-            print('listValueMemory', n, self.mem_list_init2)
+            logger.debug(f'listValueMemory {n} {self.mem_list_init2}')
             if not self.mem_list_init2:
                 self.mem_list2 = self.listValue.listValue(n, ordre, eq, max)
                 self.mem_list_init2 = True
             return self.mem_list2
         elif n == 1:
-            print('listValueMemory', n, self.mem_list_init1)
+            logger.debug(f'listValueMemory {n} {self.mem_list_init1}')
             if not self.mem_list_init1:
                 self.mem_list1 = self.listValue.listValue(n, ordre, eq, max)
                 self.mem_list_init1 = True
             return self.mem_list1
         else:
-            print('listValueMemory', n)
+            logger.debug(f'listValueMemory {n}')
         return self.listValue.listValue(n, ordre, eq, max)
 
 
@@ -437,6 +440,7 @@ class ListValueOptimise:
         return False
 
     def listValueOptimised(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
+        logger = logging.getLogger(__name__)
         list = self.listValue.listValue(n, ordre, eq, max)
 
         tmp = []
@@ -456,8 +460,6 @@ class ListValueOptimise:
         if len(tmp) == 0:
             return list
 
-        # list2 = filter(lambda item: item, list)
-        # list2 = [item for item in list if (self.inList(item, tmp))]
         list2 = []
         for tmp2 in list:
             trouve = False
@@ -468,17 +470,20 @@ class ListValueOptimise:
             if trouve:
                 list2.append(tmp2)
 
-        print(f'diff={len(list) - len(list2)}')
+        logger.debug(f'diff={len(list) - len(list2)}')
 
         return list2
-        # return list
 
 
 def main():
-    n = '28741'
+    # logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(message)s')
+    # logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
+
+    # n = '28741'
     # n = '21'
     # n = '115'
-    # n = '99400891'
+    n = '99400891'
 
     resolution = Resolution()
     listValue = ListValue()
@@ -486,11 +491,12 @@ def main():
     listValueOptimise = ListValueOptimise()
 
     # methode_calcul = 1
-    methode_calcul = 2
-    # methode_calcul = 3
+    # methode_calcul = 2
+    methode_calcul = 3
 
     trace = False
-    trace = True
+
+    # trace = True
 
     def resout(methode_calcul: int):
         if methode_calcul == 1:
