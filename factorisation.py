@@ -1,5 +1,6 @@
 import math
 import time
+import timeit
 from builtins import list
 
 
@@ -118,14 +119,10 @@ class MultiplicationComplete:
     def getByOrder(self, ordre: int) -> list[Mult]:
         return [x for x in self.liste if x.ordre <= ordre]
 
-    def calcul(self, ordre: int) -> int:
+    def calcul(self, ordre: int = -1) -> int:
         res: int = 0
-        # for i in range(0, ordre + 1):
-        # mult: Mult = self.liste[i]
-        # for i in range(0, len(self.liste)):
-        # mult: Mult = self.liste[i]
         for mult in self.liste:
-            if mult.ordre <= ordre:
+            if ordre == -1 or mult.ordre <= ordre:
                 if mult.x.valeur == -1 or mult.y.valeur == -1:
                     return -1
                 res += mult.x.valeur * mult.y.valeur * 10 ** mult.ordre
@@ -142,6 +139,26 @@ class MultiplicationComplete:
         res: MultiplicationComplete = MultiplicationComplete()
         res.valeurs = [x for x in self.valeurs]
         res.liste = [x.copy() for x in self.liste]
+        return res
+
+    def getX(self) -> list[int]:
+        res = []
+        for x in self.liste:
+            tmp = x.x
+            pos = int(tmp.nom[1:]) - 1
+            while pos >= len(res):
+                res.append(-1)
+            res[pos] = tmp.valeur
+        return res
+
+    def getY(self) -> list[int]:
+        res = []
+        for y in self.liste:
+            tmp = y.y
+            pos = int(tmp.nom[1:]) - 1
+            while pos >= len(res):
+                res.append(-1)
+            res[pos] = tmp.valeur
         return res
 
 
@@ -233,7 +250,10 @@ class Resolution:
         return list6
 
     def estValide(self, eq: MultiplicationComplete, ordre: int, exacte: bool = False) -> bool:
-        res = eq.calcul(ordre)
+        if exacte:
+            res = eq.calcul()
+        else:
+            res = eq.calcul(ordre)
         if res == -1:
             return False
         res2 = eq.valeur(ordre)
@@ -455,39 +475,54 @@ class ListValueOptimise:
 
 
 def main():
-    # n = '28741'
+    n = '28741'
     # n = '21'
     # n = '115'
-    n = '99400891'
+    # n = '99400891'
 
     resolution = Resolution()
     listValue = ListValue()
     listValueMemory = ListValueMemory()
     listValueOptimise = ListValueOptimise()
 
-    methode_calcul = 1
-    # methode_calcul = 2
+    # methode_calcul = 1
+    methode_calcul = 2
     # methode_calcul = 3
 
-    start = time.time()
+    trace = False
+    trace = True
 
-    if methode_calcul == 1:
-        resolution.calcul_resolution(n, True, listValue.listValue)
-    elif methode_calcul == 2:
-        resolution.calcul_resolution(n, True, listValueMemory.listValueMemory)
-    elif methode_calcul == 3:
-        resolution.calcul_resolution(n, True, listValueOptimise.listValueOptimised)
+    def resout(methode_calcul: int):
+        if methode_calcul == 1:
+            resolution.calcul_resolution(n, True, listValue.listValue)
+        elif methode_calcul == 2:
+            resolution.calcul_resolution(n, True, listValueMemory.listValueMemory)
+        elif methode_calcul == 3:
+            resolution.calcul_resolution(n, True, listValueOptimise.listValueOptimised)
 
-    end = time.time()
-    elapsed = end * 1000 - start * 1000
+    if not trace:
+        start = time.time()
 
-    print(f'Temps d\'exécution (methode {methode_calcul}) : {elapsed}ms')
-    print(
-        f'Temps d\'exécution detailé : total={resolution.elapsed_total}ms, '
-        f'construit={resolution.elapsed_construit}ms, '
-        f'construit2={resolution.elapsed_construit2}ms, resolve={resolution.elapsed_resolve}ms, '
-        f'affiche={resolution.elapsed_affiche}ms')
-    print(f'stat:{resolution.stat}')
+        resout(methode_calcul)
+
+        end = time.time()
+        elapsed = end * 1000 - start * 1000
+
+        print(f'Temps d\'exécution (methode {methode_calcul}) : {elapsed}ms')
+        print(
+            f'Temps d\'exécution detailé : total={resolution.elapsed_total}ms, '
+            f'construit={resolution.elapsed_construit}ms, '
+            f'construit2={resolution.elapsed_construit2}ms, resolve={resolution.elapsed_resolve}ms, '
+            f'affiche={resolution.elapsed_affiche}ms')
+        print(f'stat:{resolution.stat}')
+    else:
+        N = 100
+
+        result = timeit.timeit(lambda: resout(methode_calcul), number=N)
+
+        time2 = result / N * 1000
+        print(f'{result:.2f} s')
+        print(f'{time2:.1f} ms')
 
 
 if __name__ == '__main__':
