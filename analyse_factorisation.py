@@ -234,6 +234,60 @@ def test4():
     print(f'Temps d\'exécution (methode 2) : {elapsed2}ms')
 
 
+class ListValue4(ListValue2):
+
+    def __init__(self):
+        ListValue2.__init__(self)
+        self.valsPossibleMax = {}
+        self.valsPossibleMin = {}
+        self.valsPossibleNb = {}
+
+    def valeurPossibles(self, ordre: int, list: list[list[int]]):
+        n = len(list)
+        if ordre not in self.valsPossibleMax:
+            self.valsPossibleMax[ordre] = n
+        else:
+            self.valsPossibleMax[ordre] = max(n, self.valsPossibleMax[ordre])
+        if ordre not in self.valsPossibleMin:
+            self.valsPossibleMin[ordre] = n
+        else:
+            self.valsPossibleMin[ordre] = max(n, self.valsPossibleMin[ordre])
+        if ordre not in self.valsPossibleNb:
+            self.valsPossibleNb[ordre] = 1
+        else:
+            self.valsPossibleNb[ordre] = self.valsPossibleNb[ordre] + 1
+
+    def entre(self, ordre: int, val: list[int]):
+        pass
+
+    def sort(self, ordre: int, val: list[int]):
+        pass
+
+    def valeurTrouve(self, ordre: int, val: list[int]):
+        pass
+
+
+def test5():
+    logger = logging.getLogger(__name__)
+
+    #n = '28741'
+    # n = '21'
+    # n = '115'
+    n = '99400891'
+
+    resolution = Resolution()
+    # listValue = ListValue()
+    listValue = ListValue4()
+    # listValueMemory = ListValueMemory()
+    # listValueOptimise = ListValueOptimise()
+
+    resolution.calcul_resolution(n, True, listValue)
+
+    print(f"valsPossibleMax={listValue.valsPossibleMax}")
+    print(f"valsPossibleMin={listValue.valsPossibleMin}")
+    print(f"valsPossibleNb={listValue.valsPossibleNb}")
+
+
 def main():
     # logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
     logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(message)s')
@@ -242,7 +296,8 @@ def main():
     # test1()
     # test2()
     # test3()
-    test4()
+    # test4()
+    test5()
 
 
 if __name__ == '__main__':
