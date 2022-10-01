@@ -251,7 +251,7 @@ class ListValue4(ListValue2):
         if ordre not in self.valsPossibleMin:
             self.valsPossibleMin[ordre] = n
         else:
-            self.valsPossibleMin[ordre] = max(n, self.valsPossibleMin[ordre])
+            self.valsPossibleMin[ordre] = min(n, self.valsPossibleMin[ordre])
         if ordre not in self.valsPossibleNb:
             self.valsPossibleNb[ordre] = 1
         else:
@@ -307,7 +307,7 @@ class ListValue5(ListValue2):
         if ordre not in self.valsPossibleMin:
             self.valsPossibleMin[ordre] = n
         else:
-            self.valsPossibleMin[ordre] = max(n, self.valsPossibleMin[ordre])
+            self.valsPossibleMin[ordre] = min(n, self.valsPossibleMin[ordre])
         if ordre not in self.valsPossibleNb:
             self.valsPossibleNb[ordre] = 1
         else:
@@ -376,8 +376,8 @@ def main():
     # test2()
     # test3()
     # test4()
-    # test5()
-    test6()
+    test5()
+    #test6()
 
 
 if __name__ == '__main__':
