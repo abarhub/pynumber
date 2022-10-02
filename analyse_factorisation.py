@@ -360,7 +360,141 @@ def test6():
     print(f"valsPossibleNb={listValue.valsPossibleNb}")
     # print(f"text={listValue.text}")
     text_file = open("files/number.dot", "w")
-    text_file.write('digraph {\n'+listValue.text+'\n}')
+    text_file.write('digraph {\n' + listValue.text + '\n}')
+    text_file.close()
+
+    # generer le svg avec la commande
+    # dot -Tsvg number.dot >res.svg
+
+
+class ListValue6(ListValue2):
+
+    def __init__(self):
+        ListValue2.__init__(self)
+        self.valsPossibleMax = {}
+        self.valsPossibleMin = {}
+        self.valsPossibleNb = {}
+        self.pileValeurs = []
+        self.text = ""
+        self.rootNode = ""
+        self.eq = None
+        self.listNodes = []
+
+    def valeurPossibles(self, ordre: int, list: list[list[int]]):
+        n = len(list)
+        if ordre not in self.valsPossibleMax:
+            self.valsPossibleMax[ordre] = n
+        else:
+            self.valsPossibleMax[ordre] = max(n, self.valsPossibleMax[ordre])
+        if ordre not in self.valsPossibleMin:
+            self.valsPossibleMin[ordre] = n
+        else:
+            self.valsPossibleMin[ordre] = min(n, self.valsPossibleMin[ordre])
+        if ordre not in self.valsPossibleNb:
+            self.valsPossibleNb[ordre] = 1
+        else:
+            self.valsPossibleNb[ordre] = self.valsPossibleNb[ordre] + 1
+
+    def entre(self, ordre: int, val: list[int]):
+
+        if len(val) > 0:
+            n = self.getName(val, ordre)
+            attr = self.getAttr(val, ordre)
+            o = {"valeurs": val, "label": n}
+            n2 = ""
+            if n not in self.listNodes:
+                n2 += "\nCREATE (" + n + ":Soluce " \
+                                         "{" + attr + "})"
+                self.listNodes.append(n)
+
+            n3 = ""
+            if len(self.pileValeurs) > 0:
+                o0 = self.pileValeurs[-1]
+                n3 = o0["label"]
+            else:
+                n3 += self.rootNode
+
+            if len(n3) > 0:
+                n2 += "\n" + "CREATE (" + n3 + ")-[:SOL]->(" + n + ")"
+
+            self.text += n2
+        self.pileValeurs.append(o)
+
+    def sort(self, ordre: int, val: list[int]):
+        self.pileValeurs.pop(-1)
+
+    def valeurTrouve(self, ordre: int, val: list[int]):
+        pass
+
+    def getName(self, val, ordre):
+        n = "x" + str(ordre) + "_" + str(val[0])
+        if len(val) > 1:
+            n += "_y" + str(ordre) + "_" + str(val[1])
+        return n
+
+    def getAttr(self, val: list[int], ordre: int, racine: bool = False):
+        attr = "x:" + str(val[0])
+        if len(val) > 1:
+            attr += ",y:" + str(val[1])
+        attr += ",ordre:" + str(ordre)
+        attr += ",racine:" + str(racine)
+        attr += ",estSolution:false"
+        return attr
+
+    def listValue(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
+        res = super().listValue(n, ordre, eq, max)
+        if self.eq == None:
+            self.eq = eq
+            self.rootNode = "rootxy"
+            attr = self.getAttr([0, 0], -1, True)
+            self.text += "\nCREATE (" + self.rootNode + ":Soluce " \
+                                                        "{" + attr + "})\n"
+
+            i = 0
+            lastNode = ""
+            for v in eq.valeurs:
+                node = "res" + str(i)
+                self.text += "\nCREATE (" + node + ":Valeur " \
+                                                   "{val:" + str(v) + ",ordre:" + str(i) + "})"
+
+                if len(lastNode) > 0:
+                    parent = lastNode
+                else:
+                    parent = self.rootNode
+                self.text += "\n" + "CREATE (" + parent + ")-[:VAL]->(" + node + ")"
+
+                lastNode = node
+                i += 1
+
+            self.text += "\n"
+
+        return res
+
+
+def test7():
+    logger = logging.getLogger(__name__)
+
+    n = '28741'
+    # n = '21'
+    # n = '115'
+    # n = '99400891'
+
+    resolution = Resolution()
+    # listValue = ListValue()
+    listValue = ListValue6()
+    # listValueMemory = ListValueMemory()
+    # listValueOptimise = ListValueOptimise()
+
+    resolution.calcul_resolution(n, True, listValue)
+
+    print(f"valsPossibleMax={listValue.valsPossibleMax}")
+    print(f"valsPossibleMin={listValue.valsPossibleMin}")
+    print(f"valsPossibleNb={listValue.valsPossibleNb}")
+    # print(f"text={listValue.text}")
+    text_file = open("files/neo4j_numb.txt", "w")
+    text_file.write('// MATCH (n:Valeur) DETACH DELETE n\n' +
+                    '// MATCH (n:Soluce) DETACH DELETE n\n' +
+                    listValue.text + '\n')
     text_file.close()
 
     # generer le svg avec la commande
@@ -376,8 +510,9 @@ def main():
     # test2()
     # test3()
     # test4()
-    test5()
-    #test6()
+    # test5()
+    # test6()
+    test7()
 
 
 if __name__ == '__main__':
