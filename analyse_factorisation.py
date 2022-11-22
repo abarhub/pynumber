@@ -234,6 +234,139 @@ def test4():
     print(f'Temps d\'exécution (methode 2) : {elapsed2}ms')
 
 
+class ListValue4(ListValue2):
+
+    def __init__(self):
+        ListValue2.__init__(self)
+        self.valsPossibleMax = {}
+        self.valsPossibleMin = {}
+        self.valsPossibleNb = {}
+
+    def valeurPossibles(self, ordre: int, list: list[list[int]]):
+        n = len(list)
+        if ordre not in self.valsPossibleMax:
+            self.valsPossibleMax[ordre] = n
+        else:
+            self.valsPossibleMax[ordre] = max(n, self.valsPossibleMax[ordre])
+        if ordre not in self.valsPossibleMin:
+            self.valsPossibleMin[ordre] = n
+        else:
+            self.valsPossibleMin[ordre] = min(n, self.valsPossibleMin[ordre])
+        if ordre not in self.valsPossibleNb:
+            self.valsPossibleNb[ordre] = 1
+        else:
+            self.valsPossibleNb[ordre] = self.valsPossibleNb[ordre] + 1
+
+    def entre(self, ordre: int, val: list[int]):
+        pass
+
+    def sort(self, ordre: int, val: list[int]):
+        pass
+
+    def valeurTrouve(self, ordre: int, val: list[int]):
+        pass
+
+
+def test5():
+    logger = logging.getLogger(__name__)
+
+    # n = '28741'
+    # n = '21'
+    # n = '115'
+    n = '99400891'
+
+    resolution = Resolution()
+    # listValue = ListValue()
+    listValue = ListValue4()
+    # listValueMemory = ListValueMemory()
+    # listValueOptimise = ListValueOptimise()
+
+    resolution.calcul_resolution(n, True, listValue)
+
+    print(f"valsPossibleMax={listValue.valsPossibleMax}")
+    print(f"valsPossibleMin={listValue.valsPossibleMin}")
+    print(f"valsPossibleNb={listValue.valsPossibleNb}")
+
+
+class ListValue5(ListValue2):
+
+    def __init__(self):
+        ListValue2.__init__(self)
+        self.valsPossibleMax = {}
+        self.valsPossibleMin = {}
+        self.valsPossibleNb = {}
+        self.pileValeurs = []
+        self.text = ""
+
+    def valeurPossibles(self, ordre: int, list: list[list[int]]):
+        n = len(list)
+        if ordre not in self.valsPossibleMax:
+            self.valsPossibleMax[ordre] = n
+        else:
+            self.valsPossibleMax[ordre] = max(n, self.valsPossibleMax[ordre])
+        if ordre not in self.valsPossibleMin:
+            self.valsPossibleMin[ordre] = n
+        else:
+            self.valsPossibleMin[ordre] = min(n, self.valsPossibleMin[ordre])
+        if ordre not in self.valsPossibleNb:
+            self.valsPossibleNb[ordre] = 1
+        else:
+            self.valsPossibleNb[ordre] = self.valsPossibleNb[ordre] + 1
+
+    def entre(self, ordre: int, val: list[int]):
+
+        if len(val) > 0:
+            n = ""
+            if len(self.pileValeurs) > 0:
+                val0 = self.pileValeurs[-1]
+                if len(val0) > 0:
+                    n += "x" + str(ordre - 1) + "_" + str(val0[0])
+                    if len(val0) > 1:
+                        n += "y" + str(ordre - 1) + "_" + str(val0[1])
+            else:
+                n += "xy"
+            n += " -> "
+            n += "x" + str(ordre) + "_" + str(val[0])
+            if len(val) > 1:
+                n += "y" + str(ordre) + "_" + str(val[1])
+            self.text += "\n" + n
+        self.pileValeurs.append(val)
+
+    def sort(self, ordre: int, val: list[int]):
+        self.pileValeurs.pop(-1)
+
+    def valeurTrouve(self, ordre: int, val: list[int]):
+        pass
+
+
+def test6():
+    logger = logging.getLogger(__name__)
+
+    n = '28741'
+    # n = '21'
+    # n = '115'
+    # n = '99400891'
+
+    resolution = Resolution()
+    # listValue = ListValue()
+    listValue = ListValue5()
+    # listValueMemory = ListValueMemory()
+    # listValueOptimise = ListValueOptimise()
+
+    resolution.calcul_resolution(n, True, listValue)
+
+    print(f"valsPossibleMax={listValue.valsPossibleMax}")
+    print(f"valsPossibleMin={listValue.valsPossibleMin}")
+    print(f"valsPossibleNb={listValue.valsPossibleNb}")
+    # print(f"text={listValue.text}")
+    text_file = open("files/number.dot", "w")
+    text_file.write('digraph {\n'+listValue.text+'\n}')
+    text_file.close()
+
+    # generer le svg avec la commande
+    # dot -Tsvg number.dot >res.svg
+
+
 def main():
     # logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
     logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(message)s')
@@ -242,7 +375,9 @@ def main():
     # test1()
     # test2()
     # test3()
-    test4()
+    # test4()
+    test5()
+    #test6()
 
 
 if __name__ == '__main__':

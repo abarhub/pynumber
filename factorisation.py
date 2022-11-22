@@ -200,6 +200,18 @@ class AbstractListValue:
     def trouve(self, eq: MultiplicationComplete, ordre: int):
         pass
 
+    def entre(self, ordre: int, val: list[int]):
+        pass
+
+    def sort(self, ordre: int, val: list[int]):
+        pass
+
+    def valeurTrouve(self, ordre: int, val: list[int]):
+        pass
+
+    def valeurTrouve(self, ordre: int, val: int):
+        pass
+
 
 class Resolution:
 
@@ -303,6 +315,7 @@ class Resolution:
         start = time.time()
         listValeur: list[list[int]] = listValueParam.listValue(len(listVariables), ordre, eq, max)
 
+        listValueParam.valeurPossibles(ordre, listValeur)
         end = time.time()
         elapsed = end * 1000 - start * 1000
         stat.elapse_listValeur += elapsed
@@ -314,6 +327,7 @@ class Resolution:
             for i in range(0, len(val)):
                 v = listVariables[i]
                 v.valeur = val[i]
+            listValueParam.entre(ordre, val)
             if self.estValide(eq, ordre, ordre + 1 >= max):
                 stat.nb_valide += 1
                 if ordre + 1 < max:
@@ -322,10 +336,12 @@ class Resolution:
                 else:
                     eq2 = eq.copy()
                     listValueParam.trouve(eq2, ordre)
+                    listValueParam.valeurTrouve(ordre, val)
                     listResultat.append(eq2)
                     logger.debug("eq {eq2}")
             else:
                 stat.nb_invalide += 1
+            listValueParam.sort(ordre, val)
             for i in range(0, len(val)):
                 v = listVariables[i]
                 v.valeur = -1
