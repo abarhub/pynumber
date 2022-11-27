@@ -379,6 +379,8 @@ class ListValue6(ListValue2):
         self.rootNode = ""
         self.eq = None
         self.listNodes = []
+        self.lastNo = 1
+        self.rootNo = 0
 
     def valeurPossibles(self, ordre: int, list: list[list[int]]):
         n = len(list)
@@ -399,12 +401,14 @@ class ListValue6(ListValue2):
 
         if len(val) > 0:
             n = self.getName(val, ordre)
-            attr = self.getAttr(val, ordre)
-            o = {"valeurs": val, "label": n}
+            no = self.lastNo
+            self.lastNo = self.lastNo + 1
+            attr = self.getAttr(val, ordre, no, False)
+            o = {"valeurs": val, "label": n, "no": no}
             n2 = ""
             if n not in self.listNodes:
                 n2 += "\nCREATE (" + n + ":Soluce " \
-                                         "{" + attr + "})"
+                                         "{" + attr + "});"
                 self.listNodes.append(n)
 
             n3 = ""
@@ -415,16 +419,18 @@ class ListValue6(ListValue2):
                 n3 += self.rootNode
 
             if len(n3) > 0:
-                n2 += "\n" + "CREATE (" + n3 + ")-[:SOL]->(" + n + ")"
+                n2 += "\n" + "CREATE (" + n3 + ")-[:SOL]->(" + n + ");"
 
             self.text += n2
-        self.pileValeurs.append(o)
+            self.pileValeurs.append(o)
 
     def sort(self, ordre: int, val: list[int]):
         self.pileValeurs.pop(-1)
 
     def valeurTrouve(self, ordre: int, val: list[int]):
-        pass
+        v = self.pileValeurs[-1]
+        n = "\nMATCH (s:Soluce {no: " + str(v["no"]) + "}) SET s.estSolution = true;"
+        self.text += n
 
     def getName(self, val, ordre):
         n = "x" + str(ordre) + "_" + str(val[0])
@@ -432,13 +438,21 @@ class ListValue6(ListValue2):
             n += "_y" + str(ordre) + "_" + str(val[1])
         return n
 
-    def getAttr(self, val: list[int], ordre: int, racine: bool = False):
+    def getAttr(self, val: list[int], ordre: int, no: int, racine: bool):
         attr = "x:" + str(val[0])
         if len(val) > 1:
             attr += ",y:" + str(val[1])
         attr += ",ordre:" + str(ordre)
         attr += ",racine:" + str(racine)
         attr += ",estSolution:false"
+        attr += ",no:" + str(no)
+        if racine:
+            n = "R"
+        else:
+            n = str(val[0]) + "*x" + str(ordre)
+            if len(val) > 1:
+                n += "+" + str(val[1]) + "*y" + str(ordre)
+        attr += ",text:\"" + n + "\""
         return attr
 
     def listValue(self, n: int, ordre: int, eq: MultiplicationComplete, max: int) -> list[list[int]]:
@@ -446,9 +460,11 @@ class ListValue6(ListValue2):
         if self.eq == None:
             self.eq = eq
             self.rootNode = "rootxy"
-            attr = self.getAttr([0, 0], -1, True)
+            self.rootNo = self.lastNo
+            self.lastNo += 1
+            attr = self.getAttr([0, 0], -1, self.rootNo, True)
             self.text += "\nCREATE (" + self.rootNode + ":Soluce " \
-                                                        "{" + attr + "})\n"
+                                                        "{" + attr + "});\n"
 
             i = 0
             lastNode = ""
@@ -474,9 +490,9 @@ class ListValue6(ListValue2):
 def test7():
     logger = logging.getLogger(__name__)
 
-    n = '28741'
+    # n = '28741'
     # n = '21'
-    # n = '115'
+    n = '115'
     # n = '99400891'
 
     resolution = Resolution()
