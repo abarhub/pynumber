@@ -1,3 +1,6 @@
+import itertools
+
+
 class Test1:
     def __init__(self):
         self.liste = []
@@ -47,6 +50,19 @@ class Test2:
         tmp = Test2()
         tmp.map = self.map.copy()
 
+    def complet(self, n, identity=False, cycle_court=False):
+        for i in range(n + 1):
+            if not self.containtSrc(n) or not self.containtDest(n):
+                return False
+            if not identity:
+                if self.map[i] == i:
+                    return False
+            if not cycle_court:
+                m = self.map[i]
+                if m in self.map and self.map[m] == i:
+                    return False
+        return True
+
 
 def test1():
     n = 4
@@ -85,43 +101,54 @@ def test1():
 
 def ajouteSuite(test2, no, n, liste):
     if no <= n:
-        premier = True
         for j in range(n + 1):
-            if no != j:
-                if premier:
-                    tmp = test2
-                    premier = False
-                else:
-                    tmp = Test2()
-                    tmp.map = test2.map.copy()
-                    liste.append(tmp)
-                if n in tmp.map or j in tmp.map.values():
-                    # on n'ajoute pas
-                    pass
-                else:
-                    tmp.add(n, j)
-                    ajouteSuite(tmp, no + 1, n, liste)
+            tmp = Test2()
+            tmp.map = test2.map.copy()
+            if no in tmp.map or j in tmp.map.values():
+                pass
+            else:
+                tmp.add(no, j)
+                ajouteSuite(tmp, no + 1, n, liste)
+    else:
+        if test2.complet(n, False):
+            liste.append(test2)
+
+
+def list_permutation(n):
+    liste = []
+    n0 = 0
+    for j in range(n + 1):
+        tmp = Test2()
+        tmp.add(n0, j)
+        ajouteSuite(tmp, n0 + 1, n, liste)
+
+    return liste
 
 
 def test2():
     n = 4
+    # n = 5
+    # n = 8
+    # n = 10
 
-    liste = []
-    for i in range(n + 1):
-        for j in range(n + 1):
-            if i != j:
-                tmp = Test2()
-                tmp.add(i, j)
-                liste.append(tmp)
-                ajouteSuite(tmp, i + 1, n, liste)
+    liste = list_permutation(n)
 
     print("liste", liste)
     print("liste.size", len(liste))
 
 
+def test3():
+    n = 4
+    liste_n = range(n + 1)
+    list_elt = list(itertools.permutations(liste_n))
+    print("liste", list_elt)
+    print("liste.size", len(list_elt))
+
+
 def main():
     # test1()
     test2()
+    # test3()
 
 
 main()
