@@ -145,10 +145,68 @@ def test3():
     print("liste.size", len(list_elt))
 
 
+def test4():
+    # n = 4
+    n = 5
+    # n = 8
+    # n = 10
+
+    liste = list_permutation(n)
+
+    print("liste", liste)
+    print("liste.size", len(liste))
+
+    liste2 = liste.copy()
+    n_max = n + 1
+    max_val = (n + 1) * 1
+    min_val = 0
+
+    res = [ele for ele in itertools.product(range(min_val, max_val), repeat=4)]
+
+    for elt in res:
+        liste3 = []
+        for tmp in liste2:
+            nbTrouve = 0
+            for x in range(n_max):
+                res = 0
+                for i in range(len(elt)):
+                    m = elt[i]
+                    for j in range(i):
+                        m = m * x
+                    res += m
+                if res % n_max == tmp.map[x]:
+                    nbTrouve += 1
+            if nbTrouve >= n - 1:
+                print("trouve:", tmp, elt, nbTrouve)
+                pass
+            else:
+                liste3.append(tmp)
+        liste2 = liste3
+
+    # for i in range(max_val):
+    #     for j in range(max_val):
+    #         for k in range(max_val):
+    #             for l in range(max_val):
+    #                 liste3 = []
+    #                 for tmp in liste2:
+    #                     nbTrouve = 0
+    #                     for x in range(n_max):
+    #                         if (i * x + j + k * x * x + 0 * l * x * x * x) % n_max == tmp.map[x]:
+    #                             nbTrouve += 1
+    #                     if nbTrouve >= n:
+    #                         pass
+    #                     else:
+    #                         liste3.append(tmp)
+    #             liste2 = liste3
+
+    print("liste2.size", len(liste2))
+
+
 def main():
     # test1()
-    test2()
+    # test2()
     # test3()
+    test4()
 
 
 main()
