@@ -146,8 +146,8 @@ def test3():
 
 
 def test4():
-    # n = 4
-    n = 5
+    n = 4
+    #n = 5
     # n = 8
     # n = 10
 
@@ -158,15 +158,20 @@ def test4():
 
     liste2 = liste.copy()
     n_max = n + 1
-    max_val = (n + 1) * 1
+    max_val = (n_max) * 1
     min_val = 0
+    min_val = -max_val
+    nb_diff = 0
+    # nb_diff = 1
+    # nb_diff = 2
 
-    res = [ele for ele in itertools.product(range(min_val, max_val), repeat=4)]
+    res = [ele for ele in itertools.product(range(min_val, max_val), repeat=6)]
 
     for elt in res:
         liste3 = []
         for tmp in liste2:
             nbTrouve = 0
+            liste_invalide = []
             for x in range(n_max):
                 res = 0
                 for i in range(len(elt)):
@@ -174,10 +179,12 @@ def test4():
                     for j in range(i):
                         m = m * x
                     res += m
-                if res % n_max == tmp.map[x]:
+                if (res) % n_max == tmp.map[x]:
                     nbTrouve += 1
-            if nbTrouve >= n - 1:
-                print("trouve:", tmp, elt, nbTrouve)
+                else:
+                    liste_invalide.append(str(x) + "->" + str(tmp.map[x]))
+            if nbTrouve >= n - nb_diff + 1:
+                print("trouve:", tmp, elt, nbTrouve, liste_invalide)
                 pass
             else:
                 liste3.append(tmp)
