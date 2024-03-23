@@ -1,5 +1,7 @@
 import itertools
 
+from quickchart import QuickChart
+
 
 class Test1:
     def __init__(self):
@@ -63,6 +65,15 @@ class Test2:
                     return False
         return True
 
+    def keys(self):
+        return list(self.map.keys())
+
+    def values(self):
+        return self.map.values()
+
+    def getMap(self) -> dict[int, int]:
+        return self.map.copy()
+
 
 def test1():
     n = 4
@@ -114,7 +125,7 @@ def ajouteSuite(test2, no, n, liste):
             liste.append(test2)
 
 
-def list_permutation(n):
+def list_permutation(n) -> [Test2]:
     liste = []
     n0 = 0
     for j in range(n + 1):
@@ -147,7 +158,7 @@ def test3():
 
 def test4():
     n = 4
-    #n = 5
+    # n = 5
     # n = 8
     # n = 10
 
@@ -209,11 +220,161 @@ def test4():
     print("liste2.size", len(liste2))
 
 
+def test5():
+    n = 3
+    # n = 5
+    # n = 8
+    # n = 10
+
+    liste = list_permutation(n)
+
+    print("liste", liste)
+    print("liste.size", len(liste))
+
+    # df = px.data.gapminder().query("country=='Canada'")
+    # fig = px.line(df, x="year", y="lifeExp", title='Life expectancy in Canada')
+    # fig.show()
+    # print("ecriture ...")
+    # fig.write_image(file0)
+    # print("ecriture ok")
+
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    qc.config = {
+        "type": "bar",
+        "data": {
+            "labels": ["Hello world", "Test"],
+            "datasets": [{
+                "label": "Foo",
+                "data": [1, 2]
+            }]
+        }
+    }
+
+    # Write a file
+    file0 = "permutation/images/fig1.png"
+    qc.to_file(file0)
+
+    no = 1
+
+    for tmp in liste:
+        map2 = tmp.getMap()
+        xList = [key for key in map2]
+        yList = list(tmp.values())
+        # xList = [1, 2, 3]
+        # yList = [1, 2, 3]
+        qc = QuickChart()
+        qc.width = 500
+        qc.height = 300
+        qc.device_pixel_ratio = 2.0
+        type = 'bar'
+        type = 'line'
+        qc.config = {
+            "type": type,
+            "data": {
+                "labels": xList,
+                "datasets": [{
+                    "label": "Foo",
+                    "data": yList
+                }]
+            }
+        }
+
+        file0 = "permutation/images/fig" + str(no) + ".png"
+        qc.to_file(file0)
+
+        no += 1
+
+        # break
+
+
+def test6():
+    n = 3
+    # n = 5
+    # n = 8
+    # n = 10
+
+    liste = list_permutation(n)
+
+    print("liste", liste)
+    print("liste.size", len(liste))
+
+    # df = px.data.gapminder().query("country=='Canada'")
+    # fig = px.line(df, x="year", y="lifeExp", title='Life expectancy in Canada')
+    # fig.show()
+    # print("ecriture ...")
+    # fig.write_image(file0)
+    # print("ecriture ok")
+
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    qc.config = {
+        "type": "bar",
+        "data": {
+            "labels": ["Hello world", "Test"],
+            "datasets": [{
+                "label": "Foo",
+                "data": [1, 2]
+            }]
+        }
+    }
+
+    # Write a file
+    file0 = "permutation/images/fig1.png"
+    qc.to_file(file0)
+
+    no = 1
+
+    labels = liste[0].keys()
+
+    dataset = []
+
+    liste1 = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'white']
+
+    for tmp in liste:
+        map2 = tmp.getMap()
+        xList = [key for key in map2]
+        yList = list(tmp.values())
+        # xList = [1, 2, 3]
+        # yList = [1, 2, 3]
+
+        tmp2 = {'label': "no" + str(no), 'data': yList,
+                'fill': False, 'borderColor': liste1[no % len(liste1)]}
+        dataset.append(tmp2)
+
+        no += 1
+
+        # break
+
+    qc = QuickChart()
+    qc.width = 500
+    qc.height = 300
+    qc.device_pixel_ratio = 2.0
+    type = 'bar'
+    type = 'line'
+    qc.config = {
+        "type": type,
+        "data": {
+            "labels": labels,
+            "datasets": dataset
+        }
+    }
+
+    file0 = "permutation/images/fig001.png"
+    qc.to_file(file0)
+
+
 def main():
     # test1()
     # test2()
     # test3()
-    test4()
+    # test4()
+    # test5()
+    test6()
 
 
 main()
